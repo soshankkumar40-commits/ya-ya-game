@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Car Racing Game</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #222;
+            text-align: center;
+            font-family: Arial;
+            color: white;
+        }
+
+        h1 {
+            color: yellow;
+        }
+
+        canvas {
+            background: #555;
+            border: 4px solid white;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🏎️ Car Racing Game</h1>
+
+    <h2>Score: <span id="score">0</span></h2>
+
+    <canvas id="game" width="350" height="500"></canvas>
+
+    <br>
+
+    <button onclick="moveLeft()">⬅ LEFT</button>
+    <button onclick="moveRight()">RIGHT ➡</button>
+    <button onclick="restart()">RESTART</button>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let car = {
+    x: 150,
+    y: 400,
+    width: 45,
+    height: 75,
+    speed: 20
+};
+
+let enemy = {
+    x: 80,
+    y: -100,
+    width: 45,
+    height: 75,
+    speed: 4
+};
+
+let score = 0;
+let gameOver = false;
+
+function drawCar(x, y, color) {
+
+    ctx.fillStyle = color;
+
+    ctx.fillRect(x, y, 45, 75);
+
+    ctx.fillStyle = "lightblue";
+    ctx.fillRect(x + 8, y + 10, 29, 20);
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(x - 5, y + 12, 5, 18);
+    ctx.fillRect(x + 45, y + 12, 5, 18);
+    ctx.fillRect(x - 5, y + 48, 5, 18);
+    ctx.fillRect(x + 45, y + 48, 5, 18);
+}
+
+function drawRoad() {
+
+    ctx.fillStyle = "#444";
+    ctx.fillRect(0, 0, 350, 500);
+
+    ctx.strokeStyle = "white";
+    ctx.setLineDash([25, 20]);
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+    ctx.moveTo(175, 0);
+    ctx.lineTo(175, 500);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+}
+
+function moveLeft() {
+    if (car.x > 10 && !gameOver) {
+        car.x -= car.speed;
+    }
+}
+
+function moveRight() {
+    if (car.x < 295 && !gameOver) {
+        car.x += car.speed;
+    }
+}
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key === "ArrowLeft") {
+        moveLeft();
+    }
+
+    if (e.key === "ArrowRight") {
+        moveRight();
+    }
+
+});
+
+function collision() {
+
+    return (
+        car.x < enemy.x + enemy.width &&
+        car.x + car.width > enemy.x &&
+        car.y < enemy.y + enemy.height &&
+        car.y + car.height > enemy.y
+    );
+}
+
+function update() {
+
+    if (gameOver) return;
+
+    drawRoad();
+
+    drawCar(car.x, car.y, "red");
+
+    drawCar(enemy.x, enemy.y, "blue");
+
+    enemy.y += enemy.speed;
+
+    if (enemy.y > 500) {
+
+        enemy.y = -100;
+        enemy.x = Math.floor(Math.random() * 290);
+
+        score++;
+        document.getElementById("score").innerText = score;
+
+        enemy.speed += 0.2;
+    }
+
+    if (collision()) {
+
+        gameOver = true;
+
+        ctx.fillStyle = "yellow";
+        ctx.font = "35px Arial";
+        ctx.fillText("GAME OVER", 55, 250);
+
+        ctx.font = "20px Arial";
+        ctx.fillText("Click RESTART", 105, 290);
+    }
+
+    requestAnimationFrame(update);
+}
+
+function restart() {
+
+    car.x = 150;
+    enemy.x = 80;
+    enemy.y = -100;
+    enemy.speed = 4;
+
+    score = 0;
+    gameOver = false;
+
+    document.getElementById("score").innerText = 0;
+
+    update();
+}
+
+update();
+
+</script>
+
+</body>
+</html>
